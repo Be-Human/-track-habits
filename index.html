@@ -95,12 +95,14 @@
 
         .habits-section {
             padding: 20px;
+            min-height: 200px;
         }
 
         .habits-list {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            min-height: 160px;
         }
 
         .habit-card {
@@ -231,6 +233,127 @@
             content: '✓';
             animation: checkmark 0.3s ease;
         }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .modal-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .modal-content {
+            margin-bottom: 25px;
+        }
+
+        .modal-content p {
+            color: #6b7280;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .modal-content .habit-name-preview {
+            font-weight: 600;
+            color: #ef4444;
+            display: block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #fef2f2;
+            border-radius: 10px;
+            border-left: 4px solid #ef4444;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .modal-btn.cancel {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-btn.confirm {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .modal-btn.confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .modal-btn:active {
+            transform: translateY(0) !important;
+        }
     </style>
 </head>
 <body>
@@ -253,10 +376,28 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">⚠️</div>
+                <div class="modal-title">确认删除</div>
+            </div>
+            <div class="modal-content">
+                <p>确定要删除这个习惯吗？所有打卡记录都会被永久删除。</p>
+                <span class="habit-name-preview" id="habitNamePreview"></span>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelDelete">取消</button>
+                <button class="modal-btn confirm" id="confirmDelete">确认删除</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const STORAGE_KEY = 'habitTrackerData';
         
         let habits = [];
+        let habitToDeleteIndex = null;
         
         const today = new Date().toISOString().split('T')[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -384,12 +525,29 @@
             renderHabits();
         }
         
-        function deleteHabit(index) {
-            if (confirm('确定要删除这个习惯吗？所有打卡记录都会被删除。')) {
-                habits.splice(index, 1);
+        function openDeleteModal(index) {
+            habitToDeleteIndex = index;
+            const habit = habits[index];
+            document.getElementById('habitNamePreview').textContent = habit.name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            habitToDeleteIndex = null;
+        }
+
+        function confirmDelete() {
+            if (habitToDeleteIndex !== null) {
+                habits.splice(habitToDeleteIndex, 1);
                 saveData();
                 renderHabits();
+                closeDeleteModal();
             }
+        }
+
+        function deleteHabit(index) {
+            openDeleteModal(index);
         }
         
         function init() {
@@ -404,6 +562,21 @@
                     addHabit(input.value);
                     input.value = '';
                     input.focus();
+                }
+            });
+
+            document.getElementById('cancelDelete').addEventListener('click', closeDeleteModal);
+            document.getElementById('confirmDelete').addEventListener('click', confirmDelete);
+            
+            document.getElementById('deleteModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDeleteModal();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeDeleteModal();
                 }
             });
         }
