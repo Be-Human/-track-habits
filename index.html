@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>习惯打卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header .date {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .add-habit-section {
+            padding: 25px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .add-habit-form {
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .add-habit-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .add-habit-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-habit-form button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .add-habit-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-habit-form button:active {
+            transform: translateY(0);
+        }
+
+        .habits-section {
+            padding: 20px;
+        }
+
+        .habits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .habit-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #e9ecef;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .habit-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .habit-card.completed {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+
+        .habit-checkbox {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .habit-checkbox:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .habit-card.completed .habit-checkbox {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #10b981;
+            color: white;
+        }
+
+        .habit-content {
+            flex: 1;
+        }
+
+        .habit-name {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .habit-streak {
+            font-size: 0.9em;
+            color: #6b7280;
+        }
+
+        .habit-streak strong {
+            color: #f59e0b;
+        }
+
+        .delete-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: transparent;
+            color: #ef4444;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.2s ease;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:hover {
+            opacity: 1;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 50%;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #6b7280;
+        }
+
+        .empty-state p {
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .habit-card.completed .habit-checkbox::after {
+            content: '✓';
+            animation: checkmark 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 习惯打卡</h1>
+            <div class="date" id="currentDate"></div>
+        </div>
+
+        <div class="add-habit-section">
+            <form class="add-habit-form" id="addHabitForm">
+                <input type="text" id="habitInput" placeholder="输入新习惯名称..." required>
+                <button type="submit">添加习惯</button>
+            </form>
+        </div>
+
+        <div class="habits-section">
+            <div class="habits-list" id="habitsList">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'habitTrackerData';
+        
+        let habits = [];
+        
+        const today = new Date().toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            return date.toLocaleDateString('zh-CN', options);
+        }
+        
+        function loadData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                habits = JSON.parse(data);
+            }
+            return habits;
+        }
+        
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+        }
+        
+        function calculateStreak(habit) {
+            let streak = 0;
+            let currentDate = today;
+            
+            if (!habit.completions || habit.completions.length === 0) {
+                return 0;
+            }
+            
+            const sortedDates = [...habit.completions].sort((a, b) => new Date(b) - new Date(a));
+            
+            const todayCompleted = sortedDates.includes(today);
+            const yesterdayCompleted = sortedDates.includes(yesterday);
+            
+            if (todayCompleted || yesterdayCompleted) {
+                let checkDate = new Date(today);
+                if (!todayCompleted) {
+                    checkDate = new Date(yesterday);
+                }
+                
+                while (true) {
+                    const dateStr = checkDate.toISOString().split('T')[0];
+                    if (sortedDates.includes(dateStr)) {
+                        streak++;
+                        checkDate.setDate(checkDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            
+            return streak;
+        }
+        
+        function isCompletedToday(habit) {
+            return habit.completions && habit.completions.includes(today);
+        }
+        
+        function renderHabits() {
+            const habitsList = document.getElementById('habitsList');
+            
+            if (habits.length === 0) {
+                habitsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🌟</div>
+                        <h3>还没有习惯</h3>
+                        <p>添加一个新习惯开始你的打卡之旅吧！<br>坚持每天打卡，养成好习惯。</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            habitsList.innerHTML = habits.map((habit, index) => {
+                const completed = isCompletedToday(habit);
+                const streak = calculateStreak(habit);
+                return `
+                    <div class="habit-card ${completed ? 'completed' : ''}" data-index="${index}">
+                        <div class="habit-checkbox" onclick="toggleHabit(${index})">
+                            ${completed ? '' : ''}
+                        </div>
+                        <div class="habit-content">
+                            <div class="habit-name">${escapeHtml(habit.name)}</div>
+                            <div class="habit-streak">
+                                🔥 连续打卡 <strong>${streak}</strong> 天
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteHabit(${index})" title="删除习惯">
+                            ×
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function addHabit(name) {
+            const newHabit = {
+                id: Date.now(),
+                name: name.trim(),
+                createdAt: today,
+                completions: []
+            };
+            habits.push(newHabit);
+            saveData();
+            renderHabits();
+        }
+        
+        function toggleHabit(index) {
+            const habit = habits[index];
+            const todayIndex = habit.completions.indexOf(today);
+            
+            if (todayIndex === -1) {
+                habit.completions.push(today);
+            } else {
+                habit.completions.splice(todayIndex, 1);
+            }
+            
+            saveData();
+            renderHabits();
+        }
+        
+        function deleteHabit(index) {
+            if (confirm('确定要删除这个习惯吗？所有打卡记录都会被删除。')) {
+                habits.splice(index, 1);
+                saveData();
+                renderHabits();
+            }
+        }
+        
+        function init() {
+            document.getElementById('currentDate').textContent = formatDate(today);
+            loadData();
+            renderHabits();
+            
+            document.getElementById('addHabitForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('habitInput');
+                if (input.value.trim()) {
+                    addHabit(input.value);
+                    input.value = '';
+                    input.focus();
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
