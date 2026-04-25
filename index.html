@@ -354,6 +354,192 @@
         .modal-btn:active {
             transform: translateY(0) !important;
         }
+
+        .calendar-modal .modal {
+            max-width: 500px;
+            width: 95%;
+            padding: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .calendar-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .calendar-nav-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: #4b5563;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-nav-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .calendar-nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .calendar {
+            width: 100%;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #6b7280;
+            padding: 10px 5px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 0.9em;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: #f3f4f6;
+        }
+
+        .calendar-day.other-month {
+            color: #d1d5db;
+            cursor: default;
+        }
+
+        .calendar-day.other-month:hover {
+            background: transparent;
+        }
+
+        .calendar-day.completed {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.completed:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .calendar-day.today {
+            border: 2px solid #667eea;
+        }
+
+        .calendar-day.today:not(.completed) {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .calendar-habit-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .calendar-habit-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .calendar-habit-streak {
+            font-size: 0.9em;
+            color: #6b7280;
+        }
+
+        .calendar-streak-value {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .calendar-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-close-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .calendar-modal .modal {
+            position: relative;
+        }
+
+        .calendar-footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-total {
+            font-size: 0.9em;
+            color: #6b7280;
+        }
+
+        .calendar-total strong {
+            color: #10b981;
+            font-size: 1.1em;
+        }
     </style>
 </head>
 <body>
@@ -393,11 +579,46 @@
         </div>
     </div>
 
+    <div class="modal-overlay calendar-modal" id="calendarModal">
+        <div class="modal">
+            <button class="calendar-close-btn" id="closeCalendarModal">×</button>
+            <div class="calendar-habit-info">
+                <div class="calendar-habit-name" id="calendarHabitName"></div>
+            </div>
+            <div class="calendar-header">
+                <button class="calendar-nav-btn" id="prevMonth">‹</button>
+                <div class="calendar-title" id="calendarTitle"></div>
+                <button class="calendar-nav-btn" id="nextMonth">›</button>
+            </div>
+            <div class="calendar">
+                <div class="calendar-weekdays">
+                    <div class="weekday">日</div>
+                    <div class="weekday">一</div>
+                    <div class="weekday">二</div>
+                    <div class="weekday">三</div>
+                    <div class="weekday">四</div>
+                    <div class="weekday">五</div>
+                    <div class="weekday">六</div>
+                </div>
+                <div class="calendar-days" id="calendarDays"></div>
+            </div>
+            <div class="calendar-footer">
+                <div class="calendar-total">本月打卡: <strong id="monthlyTotal">0</strong> 天</div>
+                <div class="calendar-habit-streak">
+                    🔥 连续打卡 <span class="calendar-streak-value" id="calendarStreak">0</span> 天
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const STORAGE_KEY = 'habitTrackerData';
         
         let habits = [];
         let habitToDeleteIndex = null;
+        let currentCalendarHabitIndex = null;
+        let currentCalendarYear = null;
+        let currentCalendarMonth = null;
         
         const today = new Date().toISOString().split('T')[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -476,16 +697,16 @@
                 const streak = calculateStreak(habit);
                 return `
                     <div class="habit-card ${completed ? 'completed' : ''}" data-index="${index}">
-                        <div class="habit-checkbox" onclick="toggleHabit(${index})">
+                        <div class="habit-checkbox" onclick="event.stopPropagation(); toggleHabit(${index})">
                             ${completed ? '' : ''}
                         </div>
-                        <div class="habit-content">
+                        <div class="habit-content" onclick="openCalendarModal(${index})" style="cursor: pointer;">
                             <div class="habit-name">${escapeHtml(habit.name)}</div>
                             <div class="habit-streak">
                                 🔥 连续打卡 <strong>${streak}</strong> 天
                             </div>
                         </div>
-                        <button class="delete-btn" onclick="deleteHabit(${index})" title="删除习惯">
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteHabit(${index})" title="删除习惯">
                             ×
                         </button>
                     </div>
@@ -550,6 +771,121 @@
             openDeleteModal(index);
         }
         
+        function openCalendarModal(index) {
+            currentCalendarHabitIndex = index;
+            const habit = habits[index];
+            const now = new Date();
+            currentCalendarYear = now.getFullYear();
+            currentCalendarMonth = now.getMonth();
+            
+            document.getElementById('calendarHabitName').textContent = habit.name;
+            document.getElementById('calendarStreak').textContent = calculateStreak(habit);
+            document.getElementById('calendarModal').classList.add('active');
+            
+            renderCalendar();
+        }
+        
+        function closeCalendarModal() {
+            document.getElementById('calendarModal').classList.remove('active');
+            currentCalendarHabitIndex = null;
+            currentCalendarYear = null;
+            currentCalendarMonth = null;
+        }
+        
+        function renderCalendar() {
+            const habit = habits[currentCalendarHabitIndex];
+            const completions = habit.completions || [];
+            
+            const title = document.getElementById('calendarTitle');
+            title.textContent = `${currentCalendarYear}年${currentCalendarMonth + 1}月`;
+            
+            const firstDay = new Date(currentCalendarYear, currentCalendarMonth, 1);
+            const lastDay = new Date(currentCalendarYear, currentCalendarMonth + 1, 0);
+            const firstDayOfWeek = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+            
+            const prevMonthLastDay = new Date(currentCalendarYear, currentCalendarMonth, 0).getDate();
+            const prevMonthDays = firstDayOfWeek;
+            
+            const totalCells = 42;
+            const nextMonthDays = totalCells - (prevMonthDays + daysInMonth);
+            
+            const daysContainer = document.getElementById('calendarDays');
+            daysContainer.innerHTML = '';
+            
+            let monthlyTotal = 0;
+            const todayDate = new Date(today);
+            const todayYear = todayDate.getFullYear();
+            const todayMonth = todayDate.getMonth();
+            const todayDay = todayDate.getDate();
+            
+            for (let i = prevMonthDays - 1; i >= 0; i--) {
+                const day = prevMonthLastDay - i;
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                dayElement.textContent = day;
+                daysContainer.appendChild(dayElement);
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentCalendarYear}-${String(currentCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isCompleted = completions.includes(dateStr);
+                const isToday = currentCalendarYear === todayYear && currentCalendarMonth === todayMonth && day === todayDay;
+                
+                if (isCompleted) {
+                    monthlyTotal++;
+                }
+                
+                const dayElement = document.createElement('div');
+                let classes = 'calendar-day';
+                if (isCompleted) classes += ' completed';
+                if (isToday) classes += ' today';
+                dayElement.className = classes;
+                dayElement.textContent = day;
+                daysContainer.appendChild(dayElement);
+            }
+            
+            for (let day = 1; day <= nextMonthDays; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                dayElement.textContent = day;
+                daysContainer.appendChild(dayElement);
+            }
+            
+            document.getElementById('monthlyTotal').textContent = monthlyTotal;
+            
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            document.getElementById('nextMonth').disabled = currentCalendarYear > currentYear || 
+                (currentCalendarYear === currentYear && currentCalendarMonth >= currentMonth);
+        }
+        
+        function prevMonth() {
+            currentCalendarMonth--;
+            if (currentCalendarMonth < 0) {
+                currentCalendarMonth = 11;
+                currentCalendarYear--;
+            }
+            renderCalendar();
+        }
+        
+        function nextMonth() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            
+            if (currentCalendarYear < currentYear || 
+                (currentCalendarYear === currentYear && currentCalendarMonth < currentMonth)) {
+                currentCalendarMonth++;
+                if (currentCalendarMonth > 11) {
+                    currentCalendarMonth = 0;
+                    currentCalendarYear++;
+                }
+                renderCalendar();
+            }
+        }
+        
         function init() {
             document.getElementById('currentDate').textContent = formatDate(today);
             loadData();
@@ -577,6 +913,19 @@
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeDeleteModal();
+                    if (document.getElementById('calendarModal').classList.contains('active')) {
+                        closeCalendarModal();
+                    }
+                }
+            });
+
+            document.getElementById('closeCalendarModal').addEventListener('click', closeCalendarModal);
+            document.getElementById('prevMonth').addEventListener('click', prevMonth);
+            document.getElementById('nextMonth').addEventListener('click', nextMonth);
+            
+            document.getElementById('calendarModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCalendarModal();
                 }
             });
         }
