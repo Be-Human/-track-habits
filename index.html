@@ -837,11 +837,35 @@
             const habitContent = habitCard.querySelector('.habit-content');
             
             const currentName = habit.name;
+            const streak = calculateStreak(habit);
+            const completions = habit.completions || [];
+            const last7Days = getLast7Days();
+            
+            const weeklyDaysHtml = last7Days.map(day => {
+                const isCompleted = completions.includes(day.dateStr);
+                const isToday = day.dateStr === today;
+                let classes = 'habit-weekly-day';
+                if (isCompleted) classes += ' completed';
+                else classes += ' not-completed';
+                if (isToday) classes += ' today';
+                
+                return `<div class="${classes}" title="${day.dateStr}">${day.weekday}</div>`;
+            }).join('');
+            
             habitContent.innerHTML = `
-                <input type="text" class="edit-habit-input" value="${escapeHtml(currentName)}" 
-                       onkeydown="handleEditKeydown(event, ${index})" 
-                       onblur="saveEditHabit(${index})"
-                       id="editInput-${index}">
+                <div class="habit-name" onclick="event.stopPropagation();" style="cursor: text;">
+                    <input type="text" class="edit-habit-input" value="${escapeHtml(currentName)}" 
+                           onclick="event.stopPropagation();"
+                           onkeydown="handleEditKeydown(event, ${index})" 
+                           onblur="saveEditHabit(${index})"
+                           id="editInput-${index}">
+                </div>
+                <div class="habit-streak">
+                    🔥 连续打卡 <strong>${streak}</strong> 天
+                </div>
+                <div class="habit-weekly">
+                    ${weeklyDaysHtml}
+                </div>
             `;
             
             setTimeout(() => {
