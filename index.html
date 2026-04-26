@@ -451,6 +451,16 @@
             background: transparent;
         }
 
+        .calendar-day.other-month.completed {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.4) 0%, rgba(5, 150, 105, 0.4) 100%);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        .calendar-day.other-month.completed:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.5) 0%, rgba(5, 150, 105, 0.5) 100%);
+        }
+
         .calendar-day.completed {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
@@ -819,10 +829,22 @@
             const todayMonth = todayDate.getMonth();
             const todayDay = todayDate.getDate();
             
+            let prevMonth = currentCalendarMonth - 1;
+            let prevMonthYear = currentCalendarYear;
+            if (prevMonth < 0) {
+                prevMonth = 11;
+                prevMonthYear--;
+            }
+            
             for (let i = prevMonthDays - 1; i >= 0; i--) {
                 const day = prevMonthLastDay - i;
+                const dateStr = `${prevMonthYear}-${String(prevMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isCompleted = completions.includes(dateStr);
+                
                 const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day other-month';
+                let classes = 'calendar-day other-month';
+                if (isCompleted) classes += ' completed';
+                dayElement.className = classes;
                 dayElement.textContent = day;
                 daysContainer.appendChild(dayElement);
             }
@@ -845,9 +867,21 @@
                 daysContainer.appendChild(dayElement);
             }
             
+            let nextMonth = currentCalendarMonth + 1;
+            let nextMonthYear = currentCalendarYear;
+            if (nextMonth > 11) {
+                nextMonth = 0;
+                nextMonthYear++;
+            }
+            
             for (let day = 1; day <= nextMonthDays; day++) {
+                const dateStr = `${nextMonthYear}-${String(nextMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isCompleted = completions.includes(dateStr);
+                
                 const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day other-month';
+                let classes = 'calendar-day other-month';
+                if (isCompleted) classes += ' completed';
+                dayElement.className = classes;
                 dayElement.textContent = day;
                 daysContainer.appendChild(dayElement);
             }
