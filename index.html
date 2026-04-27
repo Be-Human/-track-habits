@@ -81,9 +81,26 @@
 
         .add-habit-form {
             display: flex;
-            gap: 10px;
-            max-width: 500px;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 600px;
             margin: 0 auto;
+        }
+
+        .add-habit-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .add-habit-row .habit-input-wrapper {
+            flex: 1;
+        }
+
+        .add-habit-row .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .add-habit-form input {
@@ -761,6 +778,14 @@
             color: white;
         }
 
+        .chart-bar-percentage-outside {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #667eea;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
         .empty-stats {
             text-align: center;
             padding: 20px;
@@ -868,19 +893,25 @@
 
         <div class="add-habit-section">
             <form class="add-habit-form" id="addHabitForm">
-                <input type="text" id="habitInput" placeholder="输入新习惯名称..." required>
-                <div class="color-picker">
-                    <span class="color-picker-label">颜色:</span>
-                    <div class="color-options" id="addColorOptions">
-                        <div class="color-option selected" data-color="#667eea" style="background: #667eea;"></div>
-                        <div class="color-option" data-color="#f59e0b" style="background: #f59e0b;"></div>
-                        <div class="color-option" data-color="#10b981" style="background: #10b981;"></div>
-                        <div class="color-option" data-color="#ef4444" style="background: #ef4444;"></div>
-                        <div class="color-option" data-color="#8b5cf6" style="background: #8b5cf6;"></div>
-                        <div class="color-option" data-color="#06b6d4" style="background: #06b6d4;"></div>
+                <div class="add-habit-row">
+                    <div class="habit-input-wrapper">
+                        <input type="text" id="habitInput" placeholder="输入新习惯名称..." required>
+                    </div>
+                    <div class="color-picker-wrapper">
+                        <span class="color-picker-label">颜色:</span>
+                        <div class="color-options" id="addColorOptions">
+                            <div class="color-option selected" data-color="#667eea" style="background: #667eea;"></div>
+                            <div class="color-option" data-color="#f59e0b" style="background: #f59e0b;"></div>
+                            <div class="color-option" data-color="#10b981" style="background: #10b981;"></div>
+                            <div class="color-option" data-color="#ef4444" style="background: #ef4444;"></div>
+                            <div class="color-option" data-color="#8b5cf6" style="background: #8b5cf6;"></div>
+                            <div class="color-option" data-color="#06b6d4" style="background: #06b6d4;"></div>
+                        </div>
                     </div>
                 </div>
-                <button type="submit">添加习惯</button>
+                <div class="add-habit-row" style="justify-content: flex-end;">
+                    <button type="submit">添加习惯</button>
+                </div>
             </form>
         </div>
 
@@ -1120,16 +1151,18 @@
             habits.forEach((habit, index) => {
                 const completionRate = calculateCompletionRate(habit);
                 const habitColor = habit.color || '#667eea';
+                const showPercentageOutside = completionRate.rate <= 10;
                 chartBarsHtml += `
                     <div class="chart-bar-item">
                         <div class="chart-bar-label" title="${escapeHtml(habit.name)}" style="display: flex; align-items: center; gap: 8px;">
                             <span style="width: 12px; height: 12px; border-radius: 50%; background: ${habitColor}; flex-shrink: 0;"></span>
                             ${escapeHtml(habit.name)}
                         </div>
-                        <div class="chart-bar-container">
+                        <div class="chart-bar-container" style="display: flex; align-items: center; gap: 8px;">
                             <div class="chart-bar-fill" style="width: ${completionRate.rate}%; background: ${habitColor};">
-                                ${completionRate.rate > 10 ? `<span class="chart-bar-percentage">${completionRate.rate}%</span>` : ''}
+                                ${!showPercentageOutside ? `<span class="chart-bar-percentage">${completionRate.rate}%</span>` : ''}
                             </div>
+                            ${showPercentageOutside ? `<span class="chart-bar-percentage-outside">${completionRate.rate}%</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -1228,6 +1261,13 @@
             if (newSelected) {
                 newSelected.classList.add('selected');
             }
+            
+            if (editingHabitIndex !== null) {
+                const input = document.getElementById(`editInput-${editingHabitIndex}`);
+                if (input) {
+                    input.focus();
+                }
+            }
         }
 
         function handleDragStart(event, index) {
@@ -1303,7 +1343,7 @@
             if (editingHabitIndex !== index) return;
             
             const input = document.getElementById(`editInput-${index}`);
-            const newName = input.value.trim();
+            const newName = input ? input.value.trim() : habits[index].name;
             
             if (newName) {
                 habits[index].name = newName;
