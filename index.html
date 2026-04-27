@@ -1219,7 +1219,7 @@
             const colorOptionsHtml = COLORS.map(color => {
                 const selected = color === editingHabitColor ? 'selected' : '';
                 return `<div class="color-option ${selected}" data-color="${color}" style="background: ${color};" 
-                        onclick="event.stopPropagation(); selectEditColor('${color}')"></div>`;
+                        onmousedown="event.preventDefault(); event.stopPropagation(); selectEditColor('${color}', ${index})"></div>`;
             }).join('');
             
             habitContent.innerHTML = `
@@ -1252,8 +1252,14 @@
             }, 10);
         }
 
-        function selectEditColor(color) {
+        function selectEditColor(color, index) {
             editingHabitColor = color;
+            
+            if (index !== undefined && habits[index]) {
+                habits[index].color = color;
+                saveData();
+            }
+            
             const selectedOptions = document.querySelectorAll('.color-option.selected');
             selectedOptions.forEach(option => option.classList.remove('selected'));
             
