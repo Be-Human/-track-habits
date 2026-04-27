@@ -652,10 +652,196 @@
         }
 
         .calendar-total strong {
-            color: #10b981;
-            font-size: 1.1em;
+                color: #10b981;
+                font-size: 1.1em;
+            }
+
+        .stats-section {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #e9ecef;
         }
-    </style>
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .stats-chart {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .stats-chart-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .chart-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chart-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-bar-label {
+            width: 100px;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #1f2937;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chart-bar-container {
+            flex: 1;
+            height: 24px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chart-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+        }
+
+        .chart-bar-percentage {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+        }
+
+        .empty-stats {
+            text-align: center;
+            padding: 20px;
+            color: #9ca3af;
+            font-size: 0.95em;
+        }
+
+        .empty-stats .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-picker-label {
+            font-size: 0.9em;
+            color: #6b7280;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 6px;
+        }
+
+        .color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .color-option.selected {
+            border-color: #1f2937;
+            transform: scale(1.1);
+        }
+
+        .edit-habit-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .edit-habit-name {
+            flex: 1;
+        }
+
+        .edit-habit-color {
+            flex-shrink: 0;
+        }
+
+        .habit-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .habit-card.drag-over {
+            border-top: 3px solid #667eea;
+        }
+
+        .habits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-height: 160px;
+        }
+        </style>
 </head>
 <body>
     <div class="container">
@@ -670,9 +856,30 @@
             </div>
         </div>
 
+        <div class="stats-section" id="statsSection">
+            <div class="stats-container" id="statsContainer">
+            </div>
+            <div class="stats-chart" id="statsChart">
+                <div class="stats-chart-title">过去30天完成率对比</div>
+                <div class="chart-bars" id="chartBars">
+                </div>
+            </div>
+        </div>
+
         <div class="add-habit-section">
             <form class="add-habit-form" id="addHabitForm">
                 <input type="text" id="habitInput" placeholder="输入新习惯名称..." required>
+                <div class="color-picker">
+                    <span class="color-picker-label">颜色:</span>
+                    <div class="color-options" id="addColorOptions">
+                        <div class="color-option selected" data-color="#667eea" style="background: #667eea;"></div>
+                        <div class="color-option" data-color="#f59e0b" style="background: #f59e0b;"></div>
+                        <div class="color-option" data-color="#10b981" style="background: #10b981;"></div>
+                        <div class="color-option" data-color="#ef4444" style="background: #ef4444;"></div>
+                        <div class="color-option" data-color="#8b5cf6" style="background: #8b5cf6;"></div>
+                        <div class="color-option" data-color="#06b6d4" style="background: #06b6d4;"></div>
+                    </div>
+                </div>
                 <button type="submit">添加习惯</button>
             </form>
         </div>
@@ -740,6 +947,18 @@
         let currentCalendarHabitIndex = null;
         let currentCalendarYear = null;
         let currentCalendarMonth = null;
+        let selectedAddColor = '#667eea';
+        let editingHabitColor = null;
+        let draggedIndex = null;
+        
+        const COLORS = [
+            '#667eea',
+            '#f59e0b',
+            '#10b981',
+            '#ef4444',
+            '#8b5cf6',
+            '#06b6d4'
+        ];
         
         const today = new Date().toISOString().split('T')[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -812,6 +1031,112 @@
             }
             return days;
         }
+
+        function getLast30Days() {
+            const days = [];
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                days.push(date.toISOString().split('T')[0]);
+            }
+            return days;
+        }
+
+        function calculateTotalCompletions() {
+            let total = 0;
+            habits.forEach(habit => {
+                if (habit.completions) {
+                    total += habit.completions.length;
+                }
+            });
+            return total;
+        }
+
+        function calculateActiveStreaks() {
+            let count = 0;
+            habits.forEach(habit => {
+                const streak = calculateStreak(habit);
+                if (streak > 0) {
+                    count++;
+                }
+            });
+            return count;
+        }
+
+        function calculateCompletionRate(habit) {
+            const last30Days = getLast30Days();
+            const completions = habit.completions || [];
+            let completedDays = 0;
+            
+            last30Days.forEach(day => {
+                if (completions.includes(day)) {
+                    completedDays++;
+                }
+            });
+            
+            return {
+                completed: completedDays,
+                total: 30,
+                rate: Math.round((completedDays / 30) * 100)
+            };
+        }
+
+        function renderStats() {
+            const statsSection = document.getElementById('statsSection');
+            const statsContainer = document.getElementById('statsContainer');
+            const statsChart = document.getElementById('statsChart');
+            const chartBars = document.getElementById('chartBars');
+            
+            if (habits.length === 0) {
+                statsSection.innerHTML = `
+                    <div class="empty-stats">
+                        <div class="icon">📊</div>
+                        <p>添加习惯后即可查看统计数据</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const totalCompletions = calculateTotalCompletions();
+            const activeStreaks = calculateActiveStreaks();
+            const totalHabits = habits.length;
+            
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalCompletions}</div>
+                    <div class="stat-label">总打卡次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${activeStreaks}</div>
+                    <div class="stat-label">当前连续打卡</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalHabits}</div>
+                    <div class="stat-label">习惯总数</div>
+                </div>
+            `;
+            
+            let chartBarsHtml = '';
+            habits.forEach((habit, index) => {
+                const completionRate = calculateCompletionRate(habit);
+                const habitColor = habit.color || '#667eea';
+                chartBarsHtml += `
+                    <div class="chart-bar-item">
+                        <div class="chart-bar-label" title="${escapeHtml(habit.name)}" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="width: 12px; height: 12px; border-radius: 50%; background: ${habitColor}; flex-shrink: 0;"></span>
+                            ${escapeHtml(habit.name)}
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-fill" style="width: ${completionRate.rate}%; background: ${habitColor};">
+                                ${completionRate.rate > 10 ? `<span class="chart-bar-percentage">${completionRate.rate}%</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            chartBars.innerHTML = chartBarsHtml;
+        }
         
         function updateProgress() {
             const progressContainer = document.getElementById('progressContainer');
@@ -838,6 +1163,7 @@
             event.stopPropagation();
             editingHabitIndex = index;
             const habit = habits[index];
+            editingHabitColor = habit.color || '#667eea';
             const habitCard = document.querySelector(`.habit-card[data-index="${index}"]`);
             const habitContent = habitCard.querySelector('.habit-content');
             
@@ -857,13 +1183,26 @@
                 return `<div class="${classes}" title="${day.dateStr}">${day.weekday}</div>`;
             }).join('');
             
+            const colorOptionsHtml = COLORS.map(color => {
+                const selected = color === editingHabitColor ? 'selected' : '';
+                return `<div class="color-option ${selected}" data-color="${color}" style="background: ${color};" 
+                        onclick="event.stopPropagation(); selectEditColor('${color}')"></div>`;
+            }).join('');
+            
             habitContent.innerHTML = `
-                <div class="habit-name" onclick="event.stopPropagation();" style="cursor: text;">
-                    <input type="text" class="edit-habit-input" value="${escapeHtml(currentName)}" 
-                           onclick="event.stopPropagation();"
-                           onkeydown="handleEditKeydown(event, ${index})" 
-                           onblur="saveEditHabit(${index})"
-                           id="editInput-${index}">
+                <div class="edit-habit-header">
+                    <div class="edit-habit-name" onclick="event.stopPropagation();" style="cursor: text;">
+                        <input type="text" class="edit-habit-input" value="${escapeHtml(currentName)}" 
+                               onclick="event.stopPropagation();"
+                               onkeydown="handleEditKeydown(event, ${index})" 
+                               onblur="saveEditHabit(${index})"
+                               id="editInput-${index}">
+                    </div>
+                    <div class="edit-habit-color">
+                        <div class="color-options" id="editColorOptions-${index}">
+                            ${colorOptionsHtml}
+                        </div>
+                    </div>
                 </div>
                 <div class="habit-streak">
                     🔥 连续打卡 <strong>${streak}</strong> 天
@@ -878,6 +1217,77 @@
                 input.focus();
                 input.select();
             }, 10);
+        }
+
+        function selectEditColor(color) {
+            editingHabitColor = color;
+            const selectedOptions = document.querySelectorAll('.color-option.selected');
+            selectedOptions.forEach(option => option.classList.remove('selected'));
+            
+            const newSelected = document.querySelector(`.color-option[data-color="${color}"]`);
+            if (newSelected) {
+                newSelected.classList.add('selected');
+            }
+        }
+
+        function handleDragStart(event, index) {
+            draggedIndex = index;
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(event) {
+            draggedIndex = null;
+            event.target.classList.remove('dragging');
+            
+            const allCards = document.querySelectorAll('.habit-card');
+            allCards.forEach(card => {
+                card.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(event) {
+            const habitCard = event.target.closest('.habit-card');
+            if (habitCard && draggedIndex !== null) {
+                const currentIndex = parseInt(habitCard.getAttribute('data-index'));
+                if (currentIndex !== draggedIndex) {
+                    const allCards = document.querySelectorAll('.habit-card');
+                    allCards.forEach(card => {
+                        card.classList.remove('drag-over');
+                    });
+                    habitCard.classList.add('drag-over');
+                }
+            }
+        }
+
+        function handleDragLeave(event) {
+            const habitCard = event.target.closest('.habit-card');
+            if (habitCard) {
+                habitCard.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(event, targetIndex) {
+            event.preventDefault();
+            
+            if (draggedIndex !== null && draggedIndex !== targetIndex) {
+                const draggedHabit = habits[draggedIndex];
+                habits.splice(draggedIndex, 1);
+                habits.splice(targetIndex, 0, draggedHabit);
+                
+                saveData();
+                renderHabits();
+            }
+            
+            const allCards = document.querySelectorAll('.habit-card');
+            allCards.forEach(card => {
+                card.classList.remove('drag-over');
+            });
         }
         
         function handleEditKeydown(event, index) {
@@ -897,10 +1307,14 @@
             
             if (newName) {
                 habits[index].name = newName;
+                if (editingHabitColor) {
+                    habits[index].color = editingHabitColor;
+                }
                 saveData();
             }
             
             editingHabitIndex = null;
+            editingHabitColor = null;
             renderHabits();
         }
         
@@ -929,6 +1343,7 @@
                 const completed = isCompletedToday(habit);
                 const streak = calculateStreak(habit);
                 const completions = habit.completions || [];
+                const color = habit.color || '#667eea';
                 
                 const weeklyDaysHtml = last7Days.map(day => {
                     const isCompleted = completions.includes(day.dateStr);
@@ -942,7 +1357,13 @@
                 }).join('');
                 
                 return `
-                    <div class="habit-card ${completed ? 'completed' : ''}" data-index="${index}">
+                    <div class="habit-card ${completed ? 'completed' : ''}" data-index="${index}" style="border-left-color: ${color};" draggable="true"
+                         ondragstart="handleDragStart(event, ${index})"
+                         ondragend="handleDragEnd(event)"
+                         ondragover="handleDragOver(event)"
+                         ondragenter="handleDragEnter(event)"
+                         ondragleave="handleDragLeave(event)"
+                         ondrop="handleDrop(event, ${index})">
                         <div class="habit-checkbox" onclick="event.stopPropagation(); toggleHabit(${index})">
                             ${completed ? '' : ''}
                         </div>
@@ -966,6 +1387,7 @@
             }).join('');
             
             updateProgress();
+            renderStats();
         }
         
         function escapeHtml(text) {
@@ -974,10 +1396,11 @@
             return div.innerHTML;
         }
         
-        function addHabit(name) {
+        function addHabit(name, color) {
             const newHabit = {
                 id: Date.now(),
                 name: name.trim(),
+                color: color || '#667eea',
                 createdAt: today,
                 completions: []
             };
@@ -1173,11 +1596,26 @@
                 e.preventDefault();
                 const input = document.getElementById('habitInput');
                 if (input.value.trim()) {
-                    addHabit(input.value);
+                    addHabit(input.value, selectedAddColor);
                     input.value = '';
                     input.focus();
                 }
             });
+            
+            const addColorOptions = document.getElementById('addColorOptions');
+            if (addColorOptions) {
+                addColorOptions.addEventListener('click', function(e) {
+                    const colorOption = e.target.closest('.color-option');
+                    if (colorOption) {
+                        const color = colorOption.getAttribute('data-color');
+                        selectedAddColor = color;
+                        
+                        const allOptions = addColorOptions.querySelectorAll('.color-option');
+                        allOptions.forEach(option => option.classList.remove('selected'));
+                        colorOption.classList.add('selected');
+                    }
+                });
+            }
 
             document.getElementById('cancelDelete').addEventListener('click', closeDeleteModal);
             document.getElementById('confirmDelete').addEventListener('click', confirmDelete);
